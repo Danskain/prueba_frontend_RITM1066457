@@ -17,9 +17,16 @@ const style = {
     p: 4,
 };
 
-const ModalPost = ({open, handleClose}) => {
+const ModalPosyModificar = ({open, handleClose, objmodificar}) => {
   const { isLoading, isError, data } = useAxiosFetch('https://jsonplaceholder.typicode.com/users');
-  const { register, handleSubmit, formState: {errors}, reset } = useForm();
+  
+  const { register, handleSubmit, formState: {errors}, reset } = useForm({
+    defaultValues: {
+        title: objmodificar.title,
+        body: objmodificar.body,
+        userId: objmodificar.userId,
+    },
+  });;
   const [users, setUsers] = useState([]) 
 
     useEffect(() => {
@@ -40,15 +47,15 @@ const ModalPost = ({open, handleClose}) => {
         'Content-type': 'application/json; charset=UTF-8',
       };
     
-      const response = await axios.post(`https://jsonplaceholder.typicode.com/posts`, objRequest, headers)
-
+      const response = await axios.put(`https://jsonplaceholder.typicode.com/posts/${objmodificar.id}`, objRequest, headers)
+      console.log(response);
       const { status, data } = response;
-
-      if (status === 201) {
+      
+      if (status === 200) {
         console.log(data);
         Swal.fire(
-          'Guardado!',
-          `El Post ${data.id} ha sido guardado exitosamente!`,
+          'Modificado!',
+          `El Post ${data.id} ha sido modificado exitosamente!`,
           'success'
         )
         handleClose();
@@ -56,9 +63,11 @@ const ModalPost = ({open, handleClose}) => {
       }else {
           Swal.fire(
               'Error!',
-              'Hubo un problema al guardar el post!',
+              'Hubo un problema al modificar el post!',
               'error'
           )
+          handleClose();
+          reset();
       }
     }
   
@@ -78,9 +87,9 @@ const ModalPost = ({open, handleClose}) => {
                 Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
             </Typography> */}
                 <form onSubmit={handleSubmit(customSubmit)}>
-                    <TextField id="outlined-basic" label="Titulo" variant="outlined" {...register('title', { required:true })} />
+                    <TextField id="outlined-basic" label="Titulo" variant="outlined" {...register("title", { required:true })} defaultValue={objmodificar.title}/>
                     {errors.titulo && <small style={{color:'red'}} >el campo no puede estar vacío</small>}
-                    <TextField id="outlined-basic" label="Body" variant="outlined" {...register('body', { required:true })} />
+                    <TextField id="outlined-basic" label="Body" variant="outlined" {...register("body", { required:true })} defaultValue={objmodificar.body}/>
                     {errors.body && <small style={{color:'red'}} >el campo no puede estar vacío</small>}
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Usuario</InputLabel>
@@ -89,7 +98,7 @@ const ModalPost = ({open, handleClose}) => {
                             id="demo-simple-select"
                             //value={age}
                             label="Usuario"
-                            {...register('userId', { required:true })}
+                            {...register("userId", { required:true })}
                             //onChange={handleChange}
                         >
                             {
@@ -102,7 +111,7 @@ const ModalPost = ({open, handleClose}) => {
                         </Select>
                     </FormControl>
                     {errors.usuario && <small style={{color:'red'}} >el campo no puede estar vacío</small>}
-                    <Button variant="contained" type="submit" >Guardar Post</Button>
+                    <Button variant="contained" type="submit" >Modificar Post</Button>
                 </form>
             </Box>
         </Modal>
@@ -110,4 +119,4 @@ const ModalPost = ({open, handleClose}) => {
   )
 }
 
-export default ModalPost
+export default ModalPosyModificar
